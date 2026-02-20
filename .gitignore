@@ -1,0 +1,27 @@
+# Dependency folders
+node_modules/
+jspm_packages/
+.npm/
+
+# Rust/Wasm artifacts
+rust-core/target/
+wasm/pkg/
+**/*.wasm
+
+# Build artifacts
+*.zip
+dist/
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Debug files
+docs/debug_sessions/
+naver_main_inspect.png
+naver_verify_v34.png

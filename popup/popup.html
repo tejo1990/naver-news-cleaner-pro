@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>네이버 뉴스 클리너</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="header-top">
+        <div class="logo">
+          <span class="logo-icon">🧹</span>
+          <div class="logo-text">
+            <h1>뉴스 클리너</h1>
+            <span class="version">v1.0.0</span>
+          </div>
+        </div>
+        <button id="toggleFilter" class="toggle-btn active" title="필터 ON/OFF">
+          <span class="toggle-track">
+            <span class="toggle-thumb"></span>
+          </span>
+        </button>
+      </div>
+      <!-- 체험 기간 상태 바 -->
+      <div class="trial-bar" id="trialBar">
+        <div class="trial-progress-bg">
+          <div class="trial-progress-fill" id="trialProgress"></div>
+        </div>
+        <div class="trial-info">
+          <span class="trial-text" id="trialText">체험 기간 계산 중...</span>
+          <span class="trial-price">$0.5 / Month</span>
+        </div>
+      </div>
+      <div class="stats-bar" id="statsBar">
+        <div class="stat">
+          <span class="stat-value" id="blockedCount">0</span>
+          <span class="stat-label">오늘 차단</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="totalBlocked">0</span>
+          <span class="stat-label">누적 차단</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="sourceCount">0</span>
+          <span class="stat-label">차단 언론사</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 탭 네비게이션 -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="sources">🏢 언론사</button>
+      <button class="tab" data-tab="keywords">🔑 키워드</button>
+      <button class="tab premium-tab" data-tab="premium">✨ AI 분석</button>
+    </nav>
+
+    <!-- 차단 언론사 탭 -->
+    <section id="sourcesTab" class="tab-content active">
+      <div class="input-group">
+        <input type="text" id="sourceInput" placeholder="차단할 언론사 이름 입력" autocomplete="off">
+        <button id="addSource" class="add-btn" title="추가">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="quick-add">
+        <span class="quick-label">빠른 추가:</span>
+        <button class="quick-btn" data-source="조선일보">조선일보</button>
+        <button class="quick-btn" data-source="중앙일보">중앙일보</button>
+        <button class="quick-btn" data-source="동아일보">동아일보</button>
+        <button class="quick-btn" data-source="한겨레">한겨레</button>
+        <button class="quick-btn" data-source="경향신문">경향신문</button>
+        <button class="quick-btn" data-source="한국일보">한국일보</button>
+      </div>
+      <ul id="sourceList" class="tag-list"></ul>
+      <div id="sourceEmpty" class="empty-state">
+        <span class="empty-icon">📰</span>
+        <p>차단할 언론사를 추가해주세요</p>
+      </div>
+    </section>
+
+    <!-- 차단 키워드 탭 -->
+    <section id="keywordsTab" class="tab-content">
+      <div class="input-group">
+        <input type="text" id="keywordInput" placeholder="차단할 키워드 입력" autocomplete="off">
+        <button id="addKeyword" class="add-btn" title="추가">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+      <ul id="keywordList" class="tag-list"></ul>
+      <div id="keywordEmpty" class="empty-state">
+        <span class="empty-icon">🔑</span>
+        <p>차단할 키워드를 추가해주세요</p>
+      </div>
+    </section>
+
+    <!-- Premium AI 탭 -->
+    <section id="premiumTab" class="tab-content">
+      <div class="premium-card">
+        <div class="card-header">
+          <h3>🤖 AI 감성 분석 필터</h3>
+          <span class="badge">BETA</span>
+        </div>
+        <p class="card-desc">기사의 어조를 분석하여 부정적이거나 자극적인 콘텐츠를 자동으로 필터링합니다.</p>
+
+        <div class="slider-container">
+          <div class="slider-labels">
+            <span>OFF</span>
+            <span>약함</span>
+            <span>강함</span>
+          </div>
+          <input type="range" id="sentimentSlider" min="0" max="2" step="1" value="0">
+        </div>
+
+        <div class="feature-status">
+          상태: <strong id="sentimentStatus">꺼짐</strong>
+        </div>
+      </div>
+
+      <div class="premium-card mt-3">
+        <div class="card-header">
+          <h3>☁️ 차단 리스트 공유</h3>
+          <span class="badge coming-soon">준비중</span>
+        </div>
+        <p class="card-desc">다른 사용자들이 만든 차단 리스트를 구독하세요.</p>
+        <button class="btn-block" disabled>커뮤니티 리스트 보기</button>
+      </div>
+    </section>
+
+    <!-- 하단 액션 바 -->
+    <footer class="footer">
+      <button id="exportBtn" class="footer-btn" title="설정 내보내기">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        내보내기
+      </button>
+      <button id="importBtn" class="footer-btn" title="설정 가져오기">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        가져오기
+      </button>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </footer>
+
+    <!-- 만료 시 나타나는 오버레이 -->
+    <div id="expirationOverlay" class="expiration-overlay">
+      <div class="overlay-content">
+        <span class="overlay-icon">🔒</span>
+        <h2>체험 기간이 만료되었습니다</h2>
+        <p>NNC Pro의 강력한 필터 기능을 계속 사용하려면 구독이 필요합니다.</p>
+        <div class="overlay-price-card">
+          <span class="p-term">월간 구독</span>
+          <span class="p-value">$0.50</span>
+        </div>
+        <button id="subscribeBtn" class="subscribe-btn">지금 구독 시작하기</button>
+        <p class="trial-note">* 7일 무료 체험이 종료되었습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

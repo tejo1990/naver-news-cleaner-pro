@@ -1,0 +1,32 @@
+{
+    "name": "naver-news-cleaner",
+    "version": "1.0.0",
+    "description": "네이버 뉴스 필터링 크롬 확장 프로그램 - Rust/Wasm 고성능 엔진",
+    "scripts": {
+        "build:wasm": "cd rust-core && wasm-pack build --target web --release --out-dir ../wasm/pkg",
+        "build:wasm:dev": "cd rust-core && wasm-pack build --target web --dev --out-dir ../wasm/pkg",
+        "build:icons": "node generate-icons.js",
+        "build": "npm run build:wasm && npm run build:icons",
+        "test": "jest",
+        "clean": "cd rust-core && cargo clean",
+        "package": "npm run build && node -e \"const{execSync}=require('child_process');execSync('tar -cf naver-news-cleaner.zip manifest.json popup/ content/ background/ wasm/pkg/ icons/*.png')\""
+    },
+    "keywords": [
+        "chrome-extension",
+        "naver",
+        "news",
+        "filter",
+        "wasm",
+        "rust"
+    ],
+    "author": "",
+    "license": "MIT",
+    "main": "generate-icons.js",
+    "directories": {
+        "doc": "docs"
+    },
+    "devDependencies": {
+        "jest": "^30.2.0",
+        "jest-environment-jsdom": "^30.2.0"
+    }
+}

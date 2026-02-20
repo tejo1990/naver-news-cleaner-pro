@@ -1,0 +1,65 @@
+{
+  "manifest_version": 3,
+  "name": "NNC - Naver News Cleaner (Pro)",
+  "version": "3.5.3",
+  "description": "7-day free trial then $0.5/m. Premium Naver News filtering with Rust/Wasm engine.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://news.naver.com/*",
+    "https://n.news.naver.com/*",
+    "https://m.news.naver.com/*",
+    "https://search.naver.com/*",
+    "https://www.naver.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://news.naver.com/*",
+        "https://n.news.naver.com/*",
+        "https://m.news.naver.com/*",
+        "https://www.naver.com/*",
+        "https://search.naver.com/search.naver?*where=news*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "wasm/pkg/*.wasm",
+        "wasm/pkg/*.js",
+        "wasm/wasm_loader.js"
+      ],
+      "matches": [
+        "https://news.naver.com/*",
+        "https://n.news.naver.com/*",
+        "https://m.news.naver.com/*",
+        "https://search.naver.com/*",
+        "https://www.naver.com/*"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

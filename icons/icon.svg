@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c5ce7"/>
+      <stop offset="100%" style="stop-color:#a29bfe"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.3)"/>
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="58" fill="url(#bg)"/>
+  <circle cx="64" cy="64" r="58" fill="url(#shine)" opacity="0.3"/>
+  <!-- Shield shape -->
+  <path d="M64 22 L94 38 L94 64 C94 82 80 98 64 106 C48 98 34 82 34 64 L34 38 Z" 
+        fill="white" opacity="0.95"/>
+  <!-- Filter/funnel icon inside shield -->
+  <path d="M48 46 L80 46 L68 62 L68 78 L60 82 L60 62 Z" 
+        fill="#6c5ce7" opacity="0.9"/>
+  <!-- Small sparkle -->
+  <circle cx="85" cy="32" r="4" fill="white" opacity="0.8"/>
+  <circle cx="90" cy="28" r="2" fill="white" opacity="0.6"/>
+</svg>
