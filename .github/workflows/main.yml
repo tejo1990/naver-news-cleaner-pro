@@ -3,11 +3,9 @@ name: NNC Pro CI/CD
 on:
   push:
     branches: [ master, main ]
-  pull_request:
-    branches: [ master, main ]
 
 jobs:
-  test-and-build:
+  test-and-publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,23 +24,27 @@ jobs:
       run: npm test
 
     - name: Build Extension (Zip)
-      if: success()
       run: |
-        mkdir -p dist
-        zip -r dist/nnc-pro-v${{ github.run_number }}.zip manifest.json popup content background wasm icons README.md
+        zip -r nnc-pro-v${{ github.run_number }}.zip manifest.json popup content background wasm icons README.md
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+    - name: Publish to Chrome Web Store
+      uses: MobileFirstLLC/chrome-extension-deploy@v2
       with:
-        name: extension-build
-        path: dist/*.zip
+        client-id: ${{ secrets.CHROME_CLIENT_ID }}
+        client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+        refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        extension-id: 'YOUR_EXTENSION_ID_HERE' # 처음엔 임시값, 나중에 실제 ID로 교체 필요
+        zip-path: nnc-pro-v${{ github.run_number }}.zip
 
-  notify:
-    needs: test-and-build
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-    - name: Build Status Notification
-      run: |
-        echo "Build and Test completed with status: ${{ needs.test-and-build.result }}"
-        # 여기에 추후 이메일 발송 또는 카카오톡 알림 API 연동 가능
+    - name: Send Email Notification
+      if: always()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.NOTIFY_EMAIL }}
+        password: ${{ secrets.MAIL_PASSWORD || 'SKIPPED' }} # 메일 비번은 보안상 사장님이 직접 등록 권장
+        subject: "NNC Pro Build Result: ${{ job.status }}"
+        to: penapllee@gmail.com
+        from: NNC Pro CI/CD
+        body: "Build and Test completed with status: ${{ job.status }}. View details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
