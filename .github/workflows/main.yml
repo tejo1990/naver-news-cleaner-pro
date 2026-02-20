@@ -1,0 +1,48 @@
+name: NNC Pro CI/CD
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build Extension (Zip)
+      if: success()
+      run: |
+        mkdir -p dist
+        zip -r dist/nnc-pro-v${{ github.run_number }}.zip manifest.json popup content background wasm icons README.md
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: extension-build
+        path: dist/*.zip
+
+  notify:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Build Status Notification
+      run: |
+        echo "Build and Test completed with status: ${{ needs.test-and-build.result }}"
+        # 여기에 추후 이메일 발송 또는 카카오톡 알림 API 연동 가능
