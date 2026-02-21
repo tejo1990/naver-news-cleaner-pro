@@ -33,7 +33,7 @@ jobs:
         client-id: ${{ secrets.CHROME_CLIENT_ID }}
         client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
         refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-        extension-id: 'YOUR_EXTENSION_ID_HERE' # 처음엔 임시값, 나중에 실제 ID로 교체 필요
+        extension-id: 'leehogagijboandihdigoecpblgnfmld'
         zip-path: nnc-pro-v${{ github.run_number }}.zip
 
     - name: Send Email Notification
