@@ -246,7 +246,7 @@ wasm-pack build --target web --release
   "name": "네이버 뉴스 클리너",
   "version": "1.0.0",
   "description": "차단 언론사 및 키워드 기반 네이버 뉴스 필터링",
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://news.naver.com/*",
     "https://m.news.naver.com/*"

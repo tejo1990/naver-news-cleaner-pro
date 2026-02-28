@@ -1,6 +1,6 @@
 # Privacy Policy for NNC - Naver News Cleaner (Pro)
 
-**Last Updated: February 21, 2026**
+**Last Updated: February 28, 2026**
 
 NNC - Naver News Cleaner ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we handle information in relation to our Chrome extension.
 
@@ -12,7 +12,6 @@ NNC is designed with a "Privacy First" philosophy.
 
 ### 2. Permissions Justification
 - **storage**: Used to save your filtering preferences and statistics locally.
-- **activeTab**: Used to inject the AI analysis button and filter news content on the currently viewed Naver News page.
 - **alarms**: Used to monitor the 7-day free trial period and reset daily block counts.
 - **host permissions**: Necessary to identify and filter news elements on Naver domains (`*.naver.com`).
 
@@ -29,7 +28,7 @@ If you have any questions about this Privacy Policy, please contact us at: **pen
 
 # 개인정보 처리방침 (NNC - 네이버 뉴스 클리너)
 
-**최종 수정일: 2026년 2월 21일**
+**최종 수정일: 2026년 2월 28일**
 
 NNC - 네이버 뉴스 클리너는 사용자의 개인정보를 소중히 여기며 보호합니다.
 
@@ -40,7 +39,6 @@ NNC - 네이버 뉴스 클리너는 사용자의 개인정보를 소중히 여�
 
 ### 2. 권한 사용 목적
 - **저장소(storage)**: 필터링 설정 및 통계 데이터의 로컬 저장.
-- **활성탭(activeTab)**: 현재 보고 있는 뉴스 페이지에 분석 기능을 제공하기 위함.
 - **알람(alarms)**: 무료 체험 기간 관리 및 통계 리셋.
 - **호스트 권한**: 네이버 도메인 내 뉴스 요소 구별 및 필터링 수행.
 

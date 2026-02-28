@@ -1,11 +1,10 @@
 {
   "manifest_version": 3,
   "name": "NNC - Naver News Cleaner (Pro)",
-  "version": "3.5.3",
+  "version": "3.5.4",
   "description": "7-day free trial then $0.5/m. Premium Naver News filtering with Rust/Wasm engine.",
   "permissions": [
     "storage",
-    "activeTab",
     "alarms"
   ],
   "host_permissions": [
