@@ -494,6 +494,26 @@
                 window.open(stripeUrl, '_blank');
             });
         }
+
+        // Gemini API Key 저장
+        const geminiInput = $('#geminiApiKey');
+        const saveApiBtn = $('#saveApiKey');
+
+        chrome.storage.local.get('geminiApiKey', (data) => {
+            if (data.geminiApiKey) {
+                geminiInput.value = data.geminiApiKey;
+            }
+        });
+
+        saveApiBtn.addEventListener('click', async () => {
+            const key = geminiInput.value.trim();
+            if (!key) {
+                showToast('API 키를 입력해주세요', 'error');
+                return;
+            }
+            await chrome.storage.local.set({ geminiApiKey: key });
+            showToast('API 키가 저장되었습니다', 'success');
+        });
     }
 
     // ── 시작 ──

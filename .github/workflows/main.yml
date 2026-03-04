@@ -11,6 +11,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install wasm-pack
+      uses: jetli/wasm-pack-action@v0.4.0
+
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
@@ -23,9 +29,25 @@ jobs:
     - name: Run tests
       run: npm test
 
-    - name: Build Extension (Zip)
+    - name: Build Wasm & Icons
+      run: npm run build
+
+    - name: Extract version from manifest
+      id: manifest
       run: |
-        zip -r nnc-pro-v${{ github.run_number }}.zip manifest.json popup content background wasm icons README.md
+        VERSION=$(node -p "require('./manifest.json').version")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Package Extension (Zip)
+      run: |
+        zip -r nnc-pro-v${{ steps.manifest.outputs.version }}.zip \
+          manifest.json \
+          popup \
+          content \
+          background \
+          wasm/pkg \
+          icons \
+          README.md
 
     - name: Publish to Chrome Web Store
       uses: MobileFirstLLC/chrome-extension-deploy@v2
@@ -34,7 +56,7 @@ jobs:
         client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
         refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
         extension-id: 'leehogagijboandihdigoecpblgnfmld'
-        zip-path: nnc-pro-v${{ github.run_number }}.zip
+        zip-path: nnc-pro-v${{ steps.manifest.outputs.version }}.zip
 
     - name: Send Email Notification
       if: always()
@@ -43,8 +65,11 @@ jobs:
         server_address: smtp.gmail.com
         server_port: 465
         username: ${{ secrets.NOTIFY_EMAIL }}
-        password: ${{ secrets.MAIL_PASSWORD || 'SKIPPED' }} # 메일 비번은 보안상 사장님이 직접 등록 권장
+        password: ${{ secrets.MAIL_PASSWORD || 'NOT_SET' }}
         subject: "NNC Pro Build Result: ${{ job.status }}"
         to: penapllee@gmail.com
         from: NNC Pro CI/CD
-        body: "Build and Test completed with status: ${{ job.status }}. View details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        body: |
+          NNC Pro (v${{ steps.manifest.outputs.version }}) Build completed.
+          Status: ${{ job.status }}
+          View details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

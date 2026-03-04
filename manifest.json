@@ -12,7 +12,8 @@
     "https://n.news.naver.com/*",
     "https://m.news.naver.com/*",
     "https://search.naver.com/*",
-    "https://www.naver.com/*"
+    "https://www.naver.com/*",
+    "https://generativelanguage.googleapis.com/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",

@@ -132,13 +132,85 @@
     const btn = document.createElement('button');
     btn.className = 'nnc-ai-btn';
     btn.innerHTML = '🤖';
-    btn.onclick = (e) => {
+    btn.onclick = async (e) => {
       e.preventDefault(); e.stopPropagation();
-      alert('NNC AI 뉴스 가디언 분석 예정 지표:\n1. 객관성\n2. 근거 무결성\n3. 의도성 타진\n4. 팩트 vs 가설\n5. 기자 평판\n6. 저널리즘 가치\n7. 데이터 교차 검증\n8. 출처 족보 추적');
+
+      const title = titleLink.textContent.trim();
+      const content = container.textContent.trim().substring(0, 500); // 전송 토큰 절약
+
+      btn.innerHTML = '⏳';
+      btn.style.opacity = '0.5';
+      btn.disabled = true;
+
+      chrome.runtime.sendMessage({ type: 'ANALYZE_ARTICLE', title, content }, (response) => {
+        btn.innerHTML = '🤖';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+
+        if (response && response.success) {
+          showAiResultModal(response.result);
+        } else {
+          alert('AI 분석 실패: ' + (response?.error || '알 수 없는 오류'));
+        }
+      });
     };
 
     Object.assign(btn.style, { marginLeft: '8px', fontSize: '12px', cursor: 'pointer', border: 'none', background: 'rgba(108,92,231,0.1)', borderRadius: '4px', padding: '2px 4px', verticalAlign: 'middle', zIndex: '10' });
     titleLink.after(btn);
+  }
+
+  function showAiResultModal(result) {
+    const overlay = document.createElement('div');
+    overlay.className = 'nnc-ai-overlay';
+    Object.assign(overlay.style, {
+      position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
+      backgroundColor: 'rgba(0,0,0,0.5)', zIndex: '10000', display: 'flex',
+      alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif'
+    });
+
+    const modal = document.createElement('div');
+    Object.assign(modal.style, {
+      backgroundColor: '#fff', padding: '24px', borderRadius: '12px',
+      maxWidth: '450px', width: '90%', boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+      position: 'relative', animation: 'nnc-slide-up 0.3s ease-out'
+    });
+
+    const getScoreColor = (s) => s > 70 ? '#4caf50' : (s > 40 ? '#ff9800' : '#f44336');
+
+    modal.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="margin:0; font-size:18px; color:#333;">🤖 AI 뉴스 분석 결과</h2>
+        <button id="nnc-modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:#999;">&times;</button>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex; align-items:center; margin-bottom:12px;">
+          <div style="flex:1; height:8px; background:#eee; borderRadius:4px; margin-right:12px;">
+            <div style="width:${result.objectivity_score}%; height:100%; background:${getScoreColor(result.objectivity_score)}; borderRadius:4px;"></div>
+          </div>
+          <span style="font-weight:bold; color:${getScoreColor(result.objectivity_score)}">${result.objectivity_score}점 (객관성)</span>
+        </div>
+        <div style="background:#f8f9fa; padding:12px; borderRadius:8px; margin-bottom:12px; font-size:14px;">
+          <p style="margin:0 0 8px 0;"><strong>편향성:</strong> ${result.bias_rating} (${result.bias_direction})</p>
+          <p style="margin:0;"><strong>요약:</strong> ${result.summary}</p>
+        </div>
+        <div style="font-size:13px; color:#666; line-height:1.5;">
+          <p style="margin:0 0 8px 0;">🔍 <strong>팩트체크:</strong> ${result.fact_check}</p>
+          <p style="margin:0;">💡 <strong>판단:</strong> ${result.verdict}</p>
+        </div>
+      </div>
+      <button id="nnc-modal-confirm" style="width:100%; padding:10px; background:#6c5ce7; color:#fff; border:none; borderRadius:6px; cursor:pointer; font-weight:bold;">확인</button>
+      <style>
+        @keyframes nnc-slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      </style>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    modal.querySelector('#nnc-modal-close').onclick = close;
+    modal.querySelector('#nnc-modal-confirm').onclick = close;
+    overlay.onclick = (e) => { if (e.target === overlay) close(); };
   }
 
   function watchDom() {

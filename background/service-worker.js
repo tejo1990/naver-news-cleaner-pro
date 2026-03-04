@@ -1,7 +1,57 @@
-// ============================================================
-// 네이버 뉴스 클리너 - Service Worker (Background)
-// 확장 프로그램 설치, 업데이트, 메시지 처리
-// ============================================================
+// ── Gemini API 호출 ──
+async function callGeminiAPI(title, content) {
+    const { geminiApiKey } = await chrome.storage.local.get('geminiApiKey');
+    if (!geminiApiKey) {
+        throw new Error('API 키가 설정되지 않았습니다. 팝업에서 설정해주세요.');
+    }
+
+    const MODEL_ID = 'gemini-2.5-flash';
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${geminiApiKey}`;
+
+    const prompt = `
+당신은 베테랑 언론인이며 중립적인 기사 분석가입니다. 
+다음 뉴스 기사의 제목과 본문(일부)을 분석하여 아래 형식의 JSON으로만 응답하세요. 다른 설명은 생략하세요.
+
+[기사 제목]: ${title}
+[기사 본문]: ${content}
+
+응답 형식 (JSON):
+{
+  "objectivity_score": 0~100 (객관성 점수),
+  "bias_rating": "매우 중립" | "중립" | "약간 편향" | "편향" | "매우 편향",
+  "bias_direction": "좌편향" | "우편향" | "상업적" | "해당없음",
+  "fact_check": "기사에서 근거가 부족하거나 검증이 필요한 부분 (짧게)",
+  "summary": "한 줄 요약",
+  "verdict": "이 기사를 신뢰할 수 있는지에 대한 짧은 의견"
+}
+`;
+
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.1, // 중립적 분석을 위해 낮게 설정
+                response_mime_type: "application/json"
+            }
+        })
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || 'API 호출 실패');
+    }
+
+    const data = await response.json();
+    try {
+        const resultText = data.candidates[0].content.parts[0].text;
+        return JSON.parse(resultText);
+    } catch (e) {
+        console.error('JSON 파싱 에러:', e, data);
+        throw new Error('분석 결과 형식이 올바르지 않습니다.');
+    }
+}
 
 // ── 확장 프로그램 설치/업데이트 시 초기 설정 ──
 chrome.runtime.onInstalled.addListener((details) => {
@@ -11,6 +61,7 @@ chrome.runtime.onInstalled.addListener((details) => {
             blockedSources: [],
             blockedKeywords: [],
             filterEnabled: true,
+            sentimentFilterLevel: 0,
         });
 
         chrome.storage.local.set({
@@ -18,6 +69,8 @@ chrome.runtime.onInstalled.addListener((details) => {
             totalProcessed: 0,
             totalBlockedAllTime: 0,
             installDate: Date.now(),
+            // 제공된 API 키를 기본값으로 설정 (필요 시 주석 해제)
+            geminiApiKey: 'AIzaSyC2XzSEVuL7CDMtNLj8EbR9EJRMoUg8PKc'
         });
 
         console.log('🧹 네이버 뉴스 클리너 설치 완료');
@@ -41,6 +94,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }
             );
             return true; // 비동기 응답
+
+        case 'ANALYZE_ARTICLE':
+            callGeminiAPI(message.title, message.content)
+                .then(result => sendResponse({ success: true, result }))
+                .catch(error => sendResponse({ success: false, error: error.message }));
+            return true;
 
         case 'GET_STATS':
             chrome.storage.local.get(
