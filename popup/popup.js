@@ -514,6 +514,22 @@
             await chrome.storage.local.set({ geminiApiKey: key });
             showToast('API 키가 저장되었습니다', 'success');
         });
+
+        // Proxy URL 저장
+        const proxyInput = $('#geminiProxyUrl');
+        const saveProxyBtn = $('#saveProxyUrl');
+
+        chrome.storage.local.get('geminiProxyUrl', (data) => {
+            if (data.geminiProxyUrl) {
+                proxyInput.value = data.geminiProxyUrl;
+            }
+        });
+
+        saveProxyBtn.addEventListener('click', async () => {
+            const url = proxyInput.value.trim();
+            await chrome.storage.local.set({ geminiProxyUrl: url });
+            showToast(url ? '프록시 주소가 저장되었습니다' : '프록시가 해제되었습니다', 'success');
+        });
     }
 
     // ── 시작 ──

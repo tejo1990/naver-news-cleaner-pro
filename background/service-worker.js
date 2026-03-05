@@ -1,6 +1,17 @@
 // ── Gemini API 호출 ──
 async function callGeminiAPI(title, content) {
-    const { geminiApiKey } = await chrome.storage.local.get('geminiApiKey');
+    const { geminiApiKey, geminiProxyUrl } = await chrome.storage.local.get(['geminiApiKey', 'geminiProxyUrl']);
+
+    // 기본 프록시 주소 (Vercel 배포 주소)
+    const DEFAULT_PROXY_URL = 'https://nncchromeextension.vercel.app/api/analyze';
+    const activeProxyUrl = geminiProxyUrl || DEFAULT_PROXY_URL;
+
+    // 프록시 서버 사용 (보안 권장 방식)
+    if (activeProxyUrl) {
+        return await callProxyAPI(activeProxyUrl, title, content);
+    }
+
+    // (참고) 프록시가 없는 경우의 직접 호출 백업
     if (!geminiApiKey) {
         throw new Error('API 키가 설정되지 않았습니다. 팝업에서 설정해주세요.');
     }
@@ -53,6 +64,28 @@ async function callGeminiAPI(title, content) {
     }
 }
 
+async function callProxyAPI(proxyUrl, title, content) {
+    console.log('🛰️ 프록시 요청 시도:', proxyUrl);
+    try {
+        const response = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, content })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ 프록시 서버 에러 응답:', response.status, errorText);
+            throw new Error(`서버 오류(${response.status}): ${errorText.substring(0, 100)} `);
+        }
+
+        return await response.json();
+    } catch (e) {
+        console.error('❌ 프록시 호출 실패:', e);
+        throw new Error(`서버 연결 실패: ${e.message} `);
+    }
+}
+
 // ── 확장 프로그램 설치/업데이트 시 초기 설정 ──
 chrome.runtime.onInstalled.addListener((details) => {
     if (details.reason === 'install') {
@@ -69,13 +102,11 @@ chrome.runtime.onInstalled.addListener((details) => {
             totalProcessed: 0,
             totalBlockedAllTime: 0,
             installDate: Date.now(),
-            // 제공된 API 키를 기본값으로 설정 (필요 시 주석 해제)
-            geminiApiKey: 'AIzaSyC2XzSEVuL7CDMtNLj8EbR9EJRMoUg8PKc'
         });
 
         console.log('🧹 네이버 뉴스 클리너 설치 완료');
     } else if (details.reason === 'update') {
-        console.log(`🔄 업데이트 완료: v${chrome.runtime.getManifest().version}`);
+        console.log(`🔄 업데이트 완료: v${chrome.runtime.getManifest().version} `);
     }
 });
 

@@ -1,6 +1,7 @@
 {
     "name": "naver-news-cleaner",
     "version": "1.0.0",
+    "type": "module",
     "description": "네이버 뉴스 필터링 크롬 확장 프로그램 - Rust/Wasm 고성능 엔진",
     "scripts": {
         "build:wasm": "cd rust-core && wasm-pack build --target web --release --out-dir ../wasm/pkg",

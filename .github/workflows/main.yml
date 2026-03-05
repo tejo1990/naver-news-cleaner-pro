@@ -70,7 +70,7 @@ jobs:
         username: ${{ secrets.NOTIFY_EMAIL }}
         password: ${{ secrets.MAIL_PASSWORD || 'NOT_SET' }}
         subject: "NNC Pro Build Result: ${{ job.status }}"
-        to: penapllee@gmail.com
+        to: penpallee@gmail.com
         from: NNC Pro CI/CD
         body: |
           NNC Pro (v${{ steps.manifest.outputs.version }}) Build completed.

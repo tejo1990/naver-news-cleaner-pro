@@ -1,0 +1,5 @@
+{
+    "version": 2,
+    "buildCommand": "mkdir -p public && echo 'NNC Proxy Server is Running' > public/index.html",
+    "outputDirectory": "public"
+}

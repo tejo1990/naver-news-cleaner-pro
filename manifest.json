@@ -13,7 +13,8 @@
     "https://m.news.naver.com/*",
     "https://search.naver.com/*",
     "https://www.naver.com/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "https://nncchromeextension.vercel.app/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
